@@ -1,8 +1,9 @@
+import { NextApiRequest, NextApiResponse } from 'next';
 import axios from "../../utils/axios";
 
 const apiKey = process.env.OMDB_KEY;  // OMDb API Key
 
-export default async (req, res) => {
+export default async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     const result = await axios.get('/', {
       params: {

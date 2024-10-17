@@ -1,8 +1,9 @@
+import { NextApiRequest, NextApiResponse } from 'next';
 import axios from "../../utils/axios";
 
 const apiKey = process.env.OMDB_KEY;  // OMDb API Key
 
-export default async (req, res) => {
+export default async (req: NextApiRequest, res: NextApiResponse) => {
   const { type } = req.query;
 
   try {
@@ -17,3 +18,4 @@ export default async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch trending data from OMDb' });
   }
 };
+

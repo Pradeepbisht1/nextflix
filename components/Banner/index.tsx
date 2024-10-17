@@ -10,7 +10,9 @@ import styles from '../../styles/Banner.module.scss';
 
 export default function Banner() {
   const [media, setMedia] = useState<Media>();
+  const random = Math.floor(Math.random() * 20); // Random movie selector
   const { setModalData, setIsModal } = useContext(ModalContext);
+  const apiKey = process.env.NEXT_PUBLIC_OMDB_API_KEY; // Use your OMDb API key from .env
 
   const onClick = (data: Media) => {
     setModalData(data);
@@ -19,18 +21,10 @@ export default function Banner() {
 
   const getMedia = async () => {
     try {
-      const randomTitles = ['Inception', 'The Matrix', 'Interstellar', 'The Dark Knight', 'Fight Club']; // Add more titles as needed
-      const random = Math.floor(Math.random() * randomTitles.length);
-      const selectedTitle = randomTitles[random];
-
-      const apiKey = '29efbf52'; // Replace with your actual OMDb API key
-      const response = await axios.get(`http://www.omdbapi.com/?t=${encodeURIComponent(selectedTitle)}&apikey=${apiKey}`);
-      
-      if (response.data && response.data.Response === 'True') {
-        setMedia(response.data);
-      }
+      const result = await axios.get(`http://www.omdbapi.com/?t=Inception&apikey=${apiKey}`);
+      setMedia(result.data);
     } catch (error) {
-      console.error('Error fetching media:', error);
+      console.error('Error fetching movie data:', error);
     }
   };
 
@@ -40,15 +34,17 @@ export default function Banner() {
 
   return (
     <div className={styles.spotlight}>
-      {media?.Poster && (
-        <img src={media.Poster} alt='spotlight' className={styles.spotlight__image} />
-      )}
+      <img src={media?.Poster} alt='spotlight' className={styles.spotlight__image} />
       <div className={styles.spotlight__details}>
-        <div className={styles.title}>{media?.Title} ({media?.Year})</div>
+        <div className={styles.title}>
+          {media?.Title} ({media?.Year})
+        </div>
         <div className={styles.synopsis}>{media?.Plot}</div>
         <div className={styles.buttonRow}>
           <Button label='Play' filled Icon={Play} />
-          {media && <Button label='More Info' Icon={Info} onClick={() => onClick(media)} />}
+          {media && (
+            <Button label='More Info' Icon={Info} onClick={() => onClick(media)} />
+          )}
         </div>
       </div>
     </div>

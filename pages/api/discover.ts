@@ -1,20 +1,15 @@
-import { NextApiRequest, NextApiResponse } from 'next';
-import axios from "../../utils/axios";
-
-const apiKey = process.env.OMDB_KEY;  // OMDb API Key
+import type { NextApiRequest, NextApiResponse } from 'next';
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
-  const { genre } = req.query;
+    const { title, year, plot = 'short' } = req.query;
+    const apiKey = '29efbf52';
+    const url = `http://www.omdbapi.com/?apikey=${apiKey}&t=${title}&y=${year}&plot=${plot}`;
 
-  try {
-    const result = await axios.get('/', {
-      params: {
-        apikey: apiKey,  // OMDb uses 'apikey'
-        s: genre,        // 's' is for searching movies by genre or title
-      },
-    });
-    res.status(200).json(result.data);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch data from OMDb' });
-  }
-};
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.Response === 'True') {
+            res.status(200).json(data);
+        } else {
+            res.status(404).json({ error

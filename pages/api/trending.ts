@@ -1,30 +1,19 @@
-import { NextApiRequest, NextApiResponse } from 'next';
-import axios from '../../utils/axios';
-import { Media, MediaType } from '../../types';
-import { parse } from '../../utils/apiResolvers';
+import axios from "../../utils/axios";
 
-interface Response {
-  type: 'Success' | 'Error';
-  data: Media[] | Error;
-}
+const apiKey = process.env.OMDB_KEY;  // OMDb API Key
 
-const apiKey = process.env.TMDB_KEY;
-
-export default async function handler(request: NextApiRequest, response: NextApiResponse<Response>) {
-  const { type, time } = request.query;
+export default async (req, res) => {
+  const { type } = req.query;
 
   try {
-    const result = await axios().get(`/trending/${type}/${time}`, {
+    const result = await axios.get('/', {
       params: {
-        api_key: apiKey,
-        watch_region: 'US'
-      }
+        apikey: apiKey,   // OMDb uses 'apikey'
+        s: type,          // 's' for searching trending type (e.g., movie or show type)
+      },
     });
-    const data = parse(result.data.results, type as MediaType);
-
-    response.status(200).json({ type: 'Success', data });
+    res.status(200).json(result.data);
   } catch (error) {
-    console.log(error.data);
-    response.status(500).json({ type: 'Error', data: error.data });
+    res.status(500).json({ error: 'Failed to fetch trending data from OMDb' });
   }
-}
+};

@@ -1,34 +1,17 @@
-import { NextApiResponse, NextApiRequest } from 'next';
+import axios from "../../utils/axios";
 
-import { parse } from '../../utils/apiResolvers';
-import { MediaType, Media } from '../../types';
-import getInstance from '../../utils/axios';
+const apiKey = process.env.OMDB_KEY;  // OMDb API Key
 
-interface Response {
-  type: 'Success' | 'Error';
-  data: Media[] | Error;
-}
+export default async (req, res) => {
+  const { genre } = req.query;
+  
+  const result = await axios.get('/', {
+    params: {
+      apikey: apiKey,  // OMDb requires 'apikey'
+      s: genre,        // Use 's' for searching by genre or title
+    },
+  });
 
-const apiKey = process.env.TMDB_KEY;
+  res.status(200).json(result.data);
+};
 
-export default async function handler(request: NextApiRequest, response: NextApiResponse<Response>) {
-  const axios = getInstance();
-  const { type, genre } = request.query;
-
-  try {
-    const result = await axios.get(`/discover/${type}`, {
-      params: {
-        api_key: apiKey,
-        with_genres: genre,
-        watch_region: 'US',
-        with_networks:'213',
-      }
-    });
-    const data = parse(result.data.results, type as MediaType);
-
-    response.status(200).json({ type: 'Success', data });
-  } catch (error) {
-    console.log(error.data);
-    response.status(500).json({ type: 'Error', data: error.data });
-  }
-}
